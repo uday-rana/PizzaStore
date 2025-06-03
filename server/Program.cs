@@ -5,17 +5,15 @@ using PizzaStore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("pizzas") ?? "Data Source=pizzas.db";
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.AddDbContext<PizzaDb>(options => options.UseSqlite(connectionString));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
   c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pizzas API", Description = "Pizza pizza", Version = "v1" });
 });
-// 1) define a unique string
-string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-// 2) define allowed domains, in this case "http://example.com" and "*" = all
-//    domains, for testing purposes only.
 builder.Services.AddCors(options =>
 {
   options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -36,12 +34,7 @@ if (app.Environment.IsDevelopment())
   });
 }
 
-
-
-// 3) use the capability
 app.UseCors(MyAllowSpecificOrigins);
-
-app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/pizzas", async (PizzaDb db) => await db.Pizzas.ToListAsync());
 
